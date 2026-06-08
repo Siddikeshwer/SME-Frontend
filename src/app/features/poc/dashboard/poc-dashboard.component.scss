@@ -1,0 +1,36 @@
+// src/app/features/poc/dashboard/poc-dashboard.component.scss
+.poc-dashboard { max-width: 1400px; }
+.page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;
+  h2{margin:0 0 4px;font-size:22px;font-weight:700;color:#0E1630;} p{margin:0;color:#5C728C;font-size:14px;}
+}
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px;
+  @media(max-width:900px){grid-template-columns:repeat(2,1fr);}
+}
+.kpi-card { display:flex; align-items:center; padding:0 !important; overflow:hidden; cursor:default;
+  .kpi-stripe{width:6px;min-height:80px;flex-shrink:0;}
+  .kpi-body{padding:14px 16px;}
+  .kpi-label{font-size:12px;color:#5C728C;font-weight:500;margin-bottom:2px;}
+  .kpi-value{font-size:28px;font-weight:700;}
+}
+.cohort-section { margin-bottom:20px; h3{margin:0 0 12px;font-size:16px;font-weight:700;color:#0E1630;} }
+.cohort-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.cohort-card { cursor:pointer; transition:box-shadow .2s; &:hover{box-shadow:0 4px 20px rgba(0,0,0,.15);}
+  .cohort-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 4px;
+    .cid{font-size:12px;font-weight:700;color:#2A70B2;}}
+  .ctype{padding:4px 16px 8px;font-size:15px;font-weight:600;color:#0E1630;}
+  .cprogress{padding:0 16px 8px;
+    .prog-bar-bg{height:6px;background:#E9F1FE;border-radius:3px;overflow:hidden;margin-bottom:4px;}
+    .prog-bar-fill{height:100%;border-radius:3px;transition:width .6s;}
+    .prog-label{font-size:11px;color:#5C728C;}
+  }
+  .cmeta{display:flex;align-items:center;gap:4px;padding:0 16px 8px;font-size:12px;color:#9BA8BB;
+    mat-icon{font-size:14px;width:14px;height:14px;}}
+  .cspecialties{padding:0 16px 14px;}
+}
+.empty-state{text-align:center;padding:40px;mat-icon{font-size:48px;width:48px;height:48px;color:#C8D4E4;}p{color:#9BA8BB;}}
+.activity-card{mat-card-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;}}
+.activity-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #F0F2F8;&:last-child{border-bottom:none;}
+  .activity-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    mat-icon{font-size:14px;width:14px;height:14px;color:#fff;}}
+  .atitle{font-size:13px;font-weight:500;color:#0E1630;} .ameta{font-size:11px;color:#9BA8BB;margin-top:2px;}
+}

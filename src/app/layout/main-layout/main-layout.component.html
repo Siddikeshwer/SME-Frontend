@@ -1,0 +1,76 @@
+<mat-sidenav-container class="app-container">
+
+  <!-- Sidebar -->
+  <mat-sidenav #sidenav [opened]="sidebarOpen" mode="side" class="app-sidenav">
+    <div class="sidenav-header">
+      <div class="logo-block">
+        <span class="logo-icon">SME</span>
+        <span class="logo-text">SME Manager</span>
+      </div>
+      <div class="role-chip" [class]="currentUser?.role?.toLowerCase()">
+        {{ currentUser?.role }}
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-nav-list class="nav-list">
+      <!-- FIX 2: use [class.active-link]="isActive(link)" instead of routerLinkActive -->
+      <!-- routerLinkActive does prefix matching which caused both items to highlight -->
+      <a mat-list-item
+         *ngFor="let link of navLinks"
+         [routerLink]="link.path"
+         [class.active-link]="isActive(link)"
+         [class.ai-link]="link.badge">
+        <mat-icon matListItemIcon [style.color]="link.badge ? '#F59E0B' : ''">{{ link.icon }}</mat-icon>
+        <span matListItemTitle>
+          {{ link.label }}
+          <span class="nav-ai-badge" *ngIf="link.badge">AI</span>
+        </span>
+      </a>
+    </mat-nav-list>
+
+    <div class="sidenav-footer">
+      <mat-divider></mat-divider>
+      <div class="user-info">
+        <div class="avatar">{{ currentUser?.fullName?.[0] }}</div>
+        <div class="user-details">
+          <div class="user-name">{{ currentUser?.fullName }}</div>
+          <div class="user-email">{{ currentUser?.email }}</div>
+        </div>
+      </div>
+      <button mat-button class="logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon> Logout
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <!-- Main Content -->
+  <mat-sidenav-content class="main-content">
+    <mat-toolbar class="top-toolbar" color="primary">
+      <button mat-icon-button (click)="toggleSidebar()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="toolbar-title">SME Manager</span>
+      <span class="spacer"></span>
+      <button mat-icon-button [matMenuTriggerFor]="userMenu">
+        <div class="toolbar-avatar">{{ currentUser?.fullName?.[0] }}</div>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <div class="menu-user-info">
+          <strong>{{ currentUser?.fullName }}</strong>
+          <span>{{ currentUser?.email }}</span>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon> Logout
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

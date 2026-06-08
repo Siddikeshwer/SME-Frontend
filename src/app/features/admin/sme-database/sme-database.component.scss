@@ -1,0 +1,52 @@
+// src/app/features/admin/sme-database/sme-database.component.scss
+.page-wrapper { max-width: 1400px; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px;
+  h2 { margin: 0 0 4px; font-size: 22px; font-weight: 700; color: #0E1630; }
+  p  { margin: 0; color: #5C728C; font-size: 14px; }
+}
+.filter-card { margin-bottom: 16px; padding: 16px;
+  .filter-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .search-field { flex: 1; min-width: 200px; }
+  .status-field { min-width: 180px; }
+}
+.table-card { overflow: hidden;
+  .table-meta { padding: 8px 16px 4px; .record-count { font-size: 13px; color: #5C728C; } }
+}
+.table-container { overflow-x: auto; }
+.sme-table { width: 100%; }
+.avatar-circle {
+  width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
+}
+.name-cell { display: flex; flex-direction: column;
+  strong { font-size: 13px; }
+  .designation { font-size: 11px; color: #9BA8BB; }
+}
+.muted { font-size: 12px; color: #5C728C; }
+.exp-badge { background: #E9F1FE; color: #2A70B2; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.action-btns { display: flex; gap: 4px; }
+.table-row:hover { background: #F5F8FF; }
+.empty-state { text-align: center; padding: 40px;
+  mat-icon { font-size: 48px; width: 48px; height: 48px; color: #C8D4E4; }
+  p { color: #9BA8BB; }
+}
+
+/* FIX 5: Specialty filter styles */
+.specialty-field { min-width: 180px; }
+
+.active-filters {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  .filter-label { font-size: 12px; color: #9BA8BB; font-weight: 600; }
+}
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #F1F5F9; border-radius: 16px; padding: 3px 10px;
+  font-size: 12px; font-weight: 600; color: #475569;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  button { background: none; border: none; cursor: pointer; display: flex; align-items: center; color: #94A3B8; padding: 0;
+    &:hover { color: #C22626; }
+    mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  }
+  &.specialty { background: #EFF6FF; color: #2A70B2; mat-icon { color: #2A70B2; } }
+  &.status    { background: #F0FDF4; color: #1A8240; mat-icon { color: #1A8240; } }
+}

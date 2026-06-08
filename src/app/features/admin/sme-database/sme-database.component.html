@@ -1,0 +1,161 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <h2>SME Database</h2>
+      <p>Master roster of Subject Matter Experts — search by name, department, or specialty</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="openAddDialog()">
+      <mat-icon>person_add</mat-icon> Add New SME
+    </button>
+  </div>
+
+  <!-- FIX 5: Filters — added Specialty dropdown -->
+  <mat-card class="filter-card">
+    <div class="filter-row">
+
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search by name, email or department</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (keyup.enter)="applyFilter()" placeholder="Type and press Enter...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- FIX 5: Specialty filter dropdown -->
+      <mat-form-field appearance="outline" class="specialty-field">
+        <mat-label>Filter by Specialty</mat-label>
+        <mat-select [(ngModel)]="selectedSpecialty" (selectionChange)="applyFilter()">
+          <mat-option value="">All Specialties</mat-option>
+          <mat-option *ngFor="let spec of specialtyOptions" [value]="spec">{{ spec }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="status-field">
+        <mat-label>Availability</mat-label>
+        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilter()">
+          <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="applyFilter()">
+        <mat-icon>search</mat-icon> Search
+      </button>
+      <button mat-stroked-button (click)="clearFilters()">
+        <mat-icon>clear</mat-icon> Clear
+      </button>
+    </div>
+
+    <!-- Active filter chips -->
+    <div class="active-filters" *ngIf="selectedSpecialty || selectedStatus || searchTerm">
+      <span class="filter-label">Active filters:</span>
+      <span class="filter-chip" *ngIf="searchTerm">
+        <mat-icon>search</mat-icon> "{{ searchTerm }}"
+        <button (click)="searchTerm=''; applyFilter()"><mat-icon>close</mat-icon></button>
+      </span>
+      <span class="filter-chip specialty" *ngIf="selectedSpecialty">
+        <mat-icon>code</mat-icon> {{ selectedSpecialty }}
+        <button (click)="selectedSpecialty=''; applyFilter()"><mat-icon>close</mat-icon></button>
+      </span>
+      <span class="filter-chip status" *ngIf="selectedStatus">
+        <mat-icon>circle</mat-icon> {{ selectedStatus }}
+        <button (click)="selectedStatus=''; applyFilter()"><mat-icon>close</mat-icon></button>
+      </span>
+    </div>
+  </mat-card>
+
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <!-- Table -->
+  <mat-card class="table-card" *ngIf="!loading">
+    <mat-card-content>
+      <div class="table-meta">
+        <span class="record-count">{{ dataSource.data.length }} SME(s) found</span>
+      </div>
+      <div class="table-container">
+        <table mat-table [dataSource]="dataSource" matSort class="sme-table">
+
+          <ng-container matColumnDef="avatar">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let sme">
+              <div class="avatar-circle" [style.background]="getAvailColor(sme.availabilityStatus)">
+                {{ getInitials(sme.fullName) }}
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fullName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Full Name</th>
+            <td mat-cell *matCellDef="let sme">
+              <div class="name-cell">
+                <strong>{{ sme.fullName }}</strong>
+                <span class="designation" *ngIf="sme.designation">{{ sme.designation }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+            <td mat-cell *matCellDef="let sme"><span class="muted">{{ sme.email }}</span></td>
+          </ng-container>
+
+          <ng-container matColumnDef="specialties">
+            <th mat-header-cell *matHeaderCellDef>Specialties</th>
+            <td mat-cell *matCellDef="let sme">
+              <app-specialty-chips [specialties]="sme.specialties" [maxShow]="3"></app-specialty-chips>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="department">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Department</th>
+            <td mat-cell *matCellDef="let sme"><span class="muted">{{ sme.department }}</span></td>
+          </ng-container>
+
+          <ng-container matColumnDef="yearsOfExperience">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Exp.</th>
+            <td mat-cell *matCellDef="let sme">
+              <span class="exp-badge">{{ sme.yearsOfExperience }} yrs</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="availabilityStatus">
+            <th mat-header-cell *matHeaderCellDef>Availability</th>
+            <td mat-cell *matCellDef="let sme">
+              <app-status-badge [status]="sme.availabilityStatus" type="availability"></app-status-badge>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="lastBooked">
+            <th mat-header-cell *matHeaderCellDef>Last Booked</th>
+            <td mat-cell *matCellDef="let sme">
+              <span class="muted">{{ sme.lastBooked ? (sme.lastBooked | date:'mediumDate') : '—' }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let sme">
+              <div class="action-btns">
+                <button mat-icon-button color="primary" matTooltip="Edit" (click)="openEditDialog(sme)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" matTooltip="Remove" (click)="deleteSme(sme)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky:true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+              <div class="empty-state">
+                <mat-icon>search_off</mat-icon>
+                <p>No SMEs match your filters</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <mat-paginator [pageSizeOptions]="[10,25,50]" showFirstLastButtons></mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

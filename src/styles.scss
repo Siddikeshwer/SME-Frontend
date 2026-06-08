@@ -1,0 +1,28 @@
+/* src/styles.scss */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  background: #F0F2F8;
+  color: #121C32;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3,h4 { font-weight: 700; }
+
+/* Material overrides */
+.mat-mdc-card { border-radius: 12px !important; }
+.mat-mdc-raised-button { border-radius: 8px !important; }
+.mat-mdc-outlined-button { border-radius: 8px !important; }
+.mat-mdc-form-field { width: 100%; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F0F2F8; }
+::-webkit-scrollbar-thumb { background: #C8D4E4; border-radius: 3px; }
+
+/* Snackbar */
+.mat-mdc-snack-bar-container { border-radius: 8px !important; }

@@ -1,0 +1,128 @@
+<!-- Agent trigger button — always visible -->
+<div class="agent-wrapper">
+
+  <button class="agent-trigger" (click)="toggle()" [class.active]="open">
+    <mat-icon>psychology</mat-icon>
+    <span>AI Decision Assistant</span>
+    <span class="ai-badge">⭐ AI</span>
+    <mat-icon class="chevron">{{ open ? 'expand_less' : 'expand_more' }}</mat-icon>
+  </button>
+
+  <!-- Panel -->
+  <div class="agent-panel" *ngIf="open">
+
+    <!-- Loading -->
+    <div class="ap-loading" *ngIf="loading">
+      <mat-spinner diameter="32"></mat-spinner>
+      <div>
+        <div class="loading-title">Analysing request...</div>
+        <div class="loading-sub">Checking SME pool, availability, dates and conflicts</div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="ap-error" *ngIf="!loading && error">
+      <mat-icon>error_outline</mat-icon> {{ error }}
+      <button mat-button (click)="runAnalysis()">Retry</button>
+    </div>
+
+    <!-- Analysis result -->
+    <div class="ap-result" *ngIf="!loading && analysis">
+
+      <!-- Verdict header -->
+      <div class="verdict-header" [style.border-left-color]="recColor">
+        <div class="vh-left">
+          <mat-icon [style.color]="recColor" class="rec-icon">{{ recIcon }}</mat-icon>
+          <div>
+            <div class="verdict-headline">{{ analysis.headline }}</div>
+            <div class="verdict-meta">
+              Confidence:
+              <strong [style.color]="scoreColor">{{ analysis.confidenceScore }}/100</strong>
+              &nbsp;·&nbsp;
+              Urgency:
+              <strong [style.color]="urgencyColor">{{ analysis.urgency }}</strong>
+            </div>
+          </div>
+        </div>
+        <button class="close-btn" (click)="close()"><mat-icon>close</mat-icon></button>
+      </div>
+
+      <!-- Explanation -->
+      <p class="explanation">{{ analysis.explanation }}</p>
+
+      <!-- Two-column layout: positives | warnings -->
+      <div class="findings-grid">
+
+        <div class="findings-col" *ngIf="analysis.positives?.length">
+          <div class="findings-header green"><mat-icon>check_circle</mat-icon> Why it looks good</div>
+          <div class="finding-item green" *ngFor="let p of analysis.positives">
+            <mat-icon>check</mat-icon><span>{{ p }}</span>
+          </div>
+        </div>
+
+        <div class="findings-col" *ngIf="analysis.warnings?.length">
+          <div class="findings-header amber"><mat-icon>warning</mat-icon> Concerns flagged</div>
+          <div class="finding-item amber" *ngFor="let w of analysis.warnings">
+            <mat-icon>priority_high</mat-icon><span>{{ w }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recommended actions -->
+      <div class="actions-section" *ngIf="analysis.actions?.length">
+        <div class="actions-header"><mat-icon>bolt</mat-icon> Recommended Actions</div>
+        <div class="action-item" *ngFor="let a of analysis.actions; let i = index">
+          <span class="action-num">{{ i + 1 }}</span>
+          <span>{{ a }}</span>
+        </div>
+      </div>
+
+      <!-- SME pool summary -->
+      <div class="pool-summary" *ngIf="analysis.smePool">
+        <div class="pool-header"><mat-icon>people</mat-icon> Live SME Pool Snapshot</div>
+        <div class="pool-stats">
+          <div class="pool-stat">
+            <div class="ps-val green">{{ analysis.smePool.matchingAndAvailable }}</div>
+            <div class="ps-label">Available &amp; Matching</div>
+          </div>
+          <div class="pool-stat">
+            <div class="ps-val amber">{{ analysis.smePool.matchingSpecialty - analysis.smePool.matchingAndAvailable }}</div>
+            <div class="ps-label">Matching but Busy</div>
+          </div>
+          <div class="pool-stat">
+            <div class="ps-val blue">{{ analysis.smePool.totalAvailable }}</div>
+            <div class="ps-label">Total Available</div>
+          </div>
+          <div class="pool-stat">
+            <div class="ps-val red">{{ analysis.smePool.totalBooked }}</div>
+            <div class="ps-label">Currently Booked</div>
+          </div>
+        </div>
+
+        <div class="alt-smes" *ngIf="analysis.smePool.recommendedSmeNames?.length">
+          <div class="alt-label"><mat-icon>person_add</mat-icon> Alternative Available SMEs</div>
+          <div class="alt-chip" *ngFor="let name of analysis.smePool.recommendedSmeNames">
+            <mat-icon>check_circle</mat-icon>{{ name }}
+          </div>
+        </div>
+
+        <div class="conflict-smes" *ngIf="analysis.smePool.conflictSmeNames?.length">
+          <div class="conflict-label"><mat-icon>event_busy</mat-icon> Booked SMEs (Conflict Risk)</div>
+          <div class="conflict-chip" *ngFor="let name of analysis.smePool.conflictSmeNames">
+            <mat-icon>warning</mat-icon>{{ name }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Re-run button -->
+      <div class="rerun-row">
+        <button class="rerun-btn" (click)="runAnalysis()">
+          <mat-icon>refresh</mat-icon> Re-analyse
+        </button>
+        <span class="powered-by">Rule-based · No external API · Live SME data</span>
+      </div>
+
+    </div>
+  </div>
+</div>

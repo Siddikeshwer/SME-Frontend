@@ -1,0 +1,145 @@
+<div class="dashboard-wrapper">
+
+  <div class="page-header">
+    <div>
+      <h2>Admin Dashboard</h2>
+      <p>System overview — SME pool health, pending approvals, and activity feed</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="loadDashboard()">
+      <mat-icon>refresh</mat-icon> Refresh
+    </button>
+  </div>
+
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <ng-container *ngIf="!loading && stats">
+
+    <!-- FIX 4: KPI Row — values from TS method, no inline pipe expressions -->
+    <!-- <div class="kpi-row">
+      <mat-card class="kpi-card"
+                *ngFor="let k of kpiCards"
+                [class]="'kpi-' + k.color"
+                (click)="onKpiClick(k.action || '')"
+                [style.cursor]="k.action ? 'pointer' : 'default'">
+        <div class="kpi-stripe" [class]="'stripe-' + k.color"></div>
+        <div class="kpi-body">
+          <div class="kpi-label">{{ k.label }}</div>
+          <div class="kpi-value" [class]="'val-' + k.color">{{ getKpiValue(k.valueKey) }}</div>
+          <div class="kpi-sub">{{ k.sub }}</div>
+        </div>
+        <mat-icon class="kpi-icon">{{ k.icon }}</mat-icon>
+        <span class="badge-dot" *ngIf="k.valueKey === 'pendingApprovals' && getKpiValue(k.valueKey) > 0">
+          {{ getKpiValue(k.valueKey) }}
+        </span>
+      </mat-card>
+    </div> -->
+    
+    <mat-card class="availability-card">
+      <mat-card-header>
+        <mat-card-title><mat-icon>donut_small</mat-icon> SME Availability Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="avail-bars">
+          <div class="avail-item" *ngFor="let item of availBars">
+            <div class="avail-label">
+              <span>{{ item.label }}</span>
+              <strong [style.color]="item.color">{{ getKpiValue(item.valueKey) }}</strong>
+            </div>
+            <div class="avail-bar-bg">
+              <div class="avail-bar-fill"
+                   [style.width.%]="getAvailPct(item.valueKey)"
+                   [style.background]="item.color"></div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    <!-- Content row -->
+    <div class="content-row">
+
+      <!-- Pending Approvals Queue -->
+      <mat-card class="queue-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>pending_actions</mat-icon>
+            Pending Approval Queue
+            <span class="count-badge red" *ngIf="stats.recentRequests?.length">
+              {{ stats.recentRequests?.length }}
+            </span>
+          </mat-card-title>
+          <button mat-button color="primary" routerLink="/admin/approvals">View All</button>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="!stats.recentRequests?.length" class="empty-state">
+            <mat-icon>done_all</mat-icon>
+            <p>No pending requests — all caught up!</p>
+          </div>
+          <div class="request-list" *ngIf="stats.recentRequests?.length">
+            <div class="request-item" *ngFor="let req of stats.recentRequests" (click)="viewRequest(req.id)">
+              <div class="request-main">
+                <div class="request-id">{{ req.cohortId }}</div>
+                <div class="request-type">{{ req.evaluationType }}</div>
+                <div class="request-meta">
+                  {{ req.smesRequired }} SMEs · {{ req.pocName }} · {{ req.createdAt | date:'short' }}
+                </div>
+              </div>
+              <div class="request-actions">
+                <app-status-badge [status]="req.status"></app-status-badge>
+                <button mat-icon-button color="primary" matTooltip="Review">
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Activity Feed -->
+      <mat-card class="activity-card">
+        <mat-card-header>
+          <mat-card-title><mat-icon>timeline</mat-icon> Recent Activity</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="!stats.recentActivity?.length" class="empty-state">
+            <mat-icon>history</mat-icon><p>No recent activity</p>
+          </div>
+          <div class="activity-feed">
+            <div class="activity-item" *ngFor="let act of stats.recentActivity">
+              <div class="activity-dot" [style.background]="getActivityColor(act.activityType)">
+                <mat-icon>{{ getActivityIcon(act.activityType) }}</mat-icon>
+              </div>
+              <div class="activity-body">
+                <div class="activity-title">{{ act.description }}</div>
+                <div class="activity-meta">{{ act.performedBy }} · {{ act.createdAt | date:'short' }}</div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- Availability Summary -->
+    <!-- <mat-card class="availability-card">
+      <mat-card-header>
+        <mat-card-title><mat-icon>donut_small</mat-icon> SME Availability Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="avail-bars">
+          <div class="avail-item" *ngFor="let item of availBars">
+            <div class="avail-label">
+              <span>{{ item.label }}</span>
+              <strong [style.color]="item.color">{{ getKpiValue(item.valueKey) }}</strong>
+            </div>
+            <div class="avail-bar-bg">
+              <div class="avail-bar-fill"
+                   [style.width.%]="getAvailPct(item.valueKey)"
+                   [style.background]="item.color"></div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card> -->
+
+  </ng-container>
+</div>

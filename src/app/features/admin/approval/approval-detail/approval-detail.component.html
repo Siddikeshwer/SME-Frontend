@@ -1,0 +1,131 @@
+<div class="detail-wrapper">
+  <div class="back-bar">
+    <button mat-button (click)="goBack()"><mat-icon>arrow_back</mat-icon> Back to Approvals</button>
+  </div>
+
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <div class="detail-layout" *ngIf="!loading && request">
+
+    <!-- Left: Request Detail -->
+    <mat-card class="detail-card">
+      <div class="detail-header">
+        <div>
+          <div class="cohort-id">{{ request.cohortId }}</div>
+          <div class="eval-type">{{ request.evaluationType }}</div>
+        </div>
+        <app-status-badge [status]="request.status"></app-status-badge>
+      </div>
+      <mat-divider></mat-divider>
+
+      <!-- FIX: fieldRows built in TS — no inline arrays or pipes in template -->
+      <div class="detail-fields">
+        <div class="field-row" *ngFor="let field of fieldRows">
+          <div class="field-label">{{ field.label }}</div>
+          <div class="field-value">{{ field.value }}</div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Right: SME Selection + Decision -->
+    <div class="right-col">
+
+      <!-- AI Decision Assistant -->
+      <app-agent-assist [requestId]="request.id"></app-agent-assist>
+
+      <!-- Proposed SMEs -->
+      <mat-card class="smes-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>people</mat-icon>
+            Proposed SMEs
+            <span style="font-size:13px;color:#5C728C;font-weight:400;margin-left:4px">
+              ({{ selectedSmeIds.size }} selected of {{ request.proposedSmes.length }})
+            </span>
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="sme-item" *ngFor="let sme of request.proposedSmes"
+               [class.conflict]="isConflict(sme)"
+               [class.selected]="isSelected(sme.id)"
+               (click)="toggleSme(sme.id)">
+
+            <div class="conflict-bar" *ngIf="isConflict(sme)"></div>
+
+            <div class="sme-avatar" [style.background]="getAvailColor(sme.availabilityStatus)">
+              {{ sme.fullName[0] }}
+            </div>
+
+            <div class="sme-info">
+              <div class="sme-name">{{ sme.fullName }}</div>
+              <div class="sme-meta">{{ sme.specialties.join(' · ') }} · {{ sme.yearsOfExperience }} yrs</div>
+              <div class="conflict-warn" *ngIf="isConflict(sme)">
+                <mat-icon>warning</mat-icon> Currently Booked — conflict risk
+              </div>
+              <app-status-badge [status]="sme.availabilityStatus" type="availability"></app-status-badge>
+            </div>
+
+            <mat-checkbox [checked]="isSelected(sme.id)"
+                          [disabled]="isConflict(sme)"
+                          (click)="$event.stopPropagation()">
+            </mat-checkbox>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Decision Panel — only for pending requests -->
+      <mat-card class="decision-card"
+                *ngIf="request.status === 'SUBMITTED' || request.status === 'UNDER_REVIEW'">
+        <mat-card-header>
+          <mat-card-title><mat-icon>gavel</mat-icon> Admin Decision</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" style="width:100%">
+            <mat-label>Admin Note (optional)</mat-label>
+            <textarea matInput [formControl]="adminNote" rows="3"
+                      placeholder="e.g. Replacing booked SMEs before approving..."></textarea>
+          </mat-form-field>
+          <div class="decision-info" *ngIf="selectedSmeIds.size > 0">
+            <mat-icon>info</mat-icon>
+            Approving will send Teams First Ping to <strong>{{ selectedSmeIds.size }}</strong> selected SME(s).
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="decide('APPROVE')"
+                  [disabled]="submitting || selectedSmeIds.size === 0">
+            <mat-spinner diameter="18" *ngIf="submitting" style="display:inline-block;margin-right:6px"></mat-spinner>
+            <mat-icon *ngIf="!submitting">send</mat-icon>
+            Approve & Notify SMEs
+          </button>
+          <button mat-stroked-button (click)="decide('REQUEST_CHANGES')" [disabled]="submitting">
+            <mat-icon>edit_note</mat-icon> Request Changes
+          </button>
+          <button mat-stroked-button color="warn" (click)="decide('REJECT')" [disabled]="submitting">
+            <mat-icon>cancel</mat-icon> Reject
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Already decided banner -->
+      <mat-card class="decided-card"
+                *ngIf="request.status !== 'SUBMITTED' && request.status !== 'UNDER_REVIEW'">
+        <div class="decided-content">
+          <mat-icon [style.color]="request.status === 'CONFIRMED' ? '#1A8240' : '#BE780E'">
+            {{ request.status === 'CONFIRMED' ? 'check_circle' : 'info' }}
+          </mat-icon>
+          <div>
+            <div class="decided-title">Request {{ request.status | titlecase }}</div>
+            <div class="decided-sub" *ngIf="request.adminNote">Admin note: {{ request.adminNote }}</div>
+            <div class="decided-sub" *ngIf="request.approvedAt">
+              Approved: {{ request.approvedAt | date:'medium' }}
+            </div>
+            <div class="decided-sub" *ngIf="request.pingsSentAt">
+              Pings sent: {{ request.pingsSentAt | date:'medium' }}
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,140 @@
+<!-- src/app/features/poc/cohorts/create-cohort/create-cohort.component.html -->
+<div class="create-wrapper">
+  <div class="page-header">
+    <button mat-button routerLink="/poc/cohorts"><mat-icon>arrow_back</mat-icon> Back</button>
+    <div><h2>Create Cohort Request</h2><p>Define requirements and select available SMEs</p></div>
+  </div>
+
+  <div class="two-col">
+
+    <!-- Step 1: Cohort Form -->
+    <mat-card class="form-card">
+      <mat-card-header>
+        <div class="step-badge">1</div>
+        <mat-card-title>Define Cohort</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="step1Form" class="form-grid">
+
+          <mat-form-field appearance="outline" class="full-span">
+            <mat-label>Evaluation Type *</mat-label>
+            <input matInput formControlName="evaluationType" placeholder="e.g. Panel Interview, SDET Evaluation">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>SMEs Required *</mat-label>
+            <input matInput formControlName="smesRequired" type="number" min="1">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Participants *</mat-label>
+            <input matInput formControlName="participantCount" type="number" min="1">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date From *</mat-label>
+            <input matInput formControlName="preferredDateFrom" type="date">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date To *</mat-label>
+            <input matInput formControlName="preferredDateTo" type="date">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Slot Duration *</mat-label>
+            <input matInput formControlName="slotDuration" placeholder="e.g. 90 minutes">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Mode *</mat-label>
+            <mat-select formControlName="mode">
+              <mat-option *ngFor="let m of modeOptions" [value]="m">{{ m }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-span">
+            <mat-label>Priority</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option *ngFor="let p of priorityOptions" [value]="p.value">{{ p.label }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Specialties -->
+          <div class="full-span">
+            <div class="spec-label">Required Specialties *</div>
+            <mat-form-field appearance="outline" style="width:100%;margin-top:4px">
+              <mat-chip-grid #chipGrid>
+                <mat-chip-row *ngFor="let s of specialties" [removable]="true" (removed)="removeSpecialty(s)">
+                  {{ s }} <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip-row>
+                <input placeholder="Add specialty..." [matChipInputFor]="chipGrid"
+                       [matChipInputSeparatorKeyCodes]="separatorKeys"
+                       (matChipInputTokenEnd)="addSpecialty($event)">
+              </mat-chip-grid>
+            </mat-form-field>
+            <div class="preset-row">
+              <span class="preset-hint">Quick add:</span>
+              <button mat-stroked-button *ngFor="let p of specialtyPresets"
+                      class="preset-btn" (click)="addPreset(p)" [disabled]="specialties.includes(p)">{{ p }}</button>
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-span">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="2" placeholder="Any special requirements..."></textarea>
+          </mat-form-field>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Step 2: SME Finder -->
+    <mat-card class="sme-card">
+      <mat-card-header>
+        <div class="step-badge teal">2</div>
+        <mat-card-title>Select SMEs</mat-card-title>
+        <p class="sme-hint" *ngIf="specialties.length">
+          Showing Available SMEs for: {{ specialties.join(', ') }}
+        </p>
+        <p class="sme-hint muted" *ngIf="!specialties.length">Add specialties above to see matching SMEs</p>
+      </mat-card-header>
+      <mat-card-content>
+
+        <app-loading-spinner *ngIf="loadingSmes"></app-loading-spinner>
+
+        <div class="selection-count" *ngIf="selectedSmeIds.length > 0">
+          <mat-icon>check_circle</mat-icon> {{ selectedSmeIds.length }} SME(s) selected
+        </div>
+
+        <div *ngIf="!loadingSmes && !availableSmes.length && specialties.length" class="empty-state">
+          <mat-icon>person_search</mat-icon>
+          <p>No available SMEs match these specialties</p>
+        </div>
+
+        <div class="sme-list">
+          <div class="sme-item" *ngFor="let sme of availableSmes"
+               [class.selected]="isSelected(sme.id)" (click)="toggleSme(sme.id)">
+            <div class="sme-avatar">{{ sme.fullName[0] }}</div>
+            <div class="sme-info">
+              <div class="sme-name">{{ sme.fullName }}</div>
+              <div class="sme-meta">{{ sme.specialties.join(' · ') }} · {{ sme.yearsOfExperience }} yrs</div>
+              <div class="sme-dept">{{ sme.department }}</div>
+            </div>
+            <mat-checkbox [checked]="isSelected(sme.id)" (click)="$event.stopPropagation()"></mat-checkbox>
+          </div>
+        </div>
+
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="submit()" [disabled]="!canSubmit() || submitting"
+                style="width:100%;height:48px;font-size:15px;font-weight:600">
+          <mat-spinner diameter="20" *ngIf="submitting" style="display:inline-block;margin-right:8px"></mat-spinner>
+          <mat-icon *ngIf="!submitting">send</mat-icon>
+          Submit for Admin Approval ({{ selectedSmeIds.length }} SME{{ selectedSmeIds.length !== 1 ? 's' : '' }} selected)
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+  </div>
+</div>

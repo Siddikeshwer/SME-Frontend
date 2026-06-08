@@ -1,0 +1,99 @@
+<!-- src/app/features/admin/sme-database/sme-form-dialog/sme-form-dialog.component.html -->
+<div class="dialog-header">
+  <div style="display:flex;align-items:center;gap:10px">
+    <mat-icon style="color:#2A70B2">person</mat-icon>
+    <h3>{{ isEdit ? 'Edit SME Profile' : 'Add New SME' }}</h3>
+  </div>
+  <button mat-icon-button style="color:#aaa" (click)="dialogRef.close()"><mat-icon>close</mat-icon></button>
+</div>
+
+<div class="dialog-body">
+  <form [formGroup]="form" class="form-grid">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Full Name *</mat-label>
+      <input matInput formControlName="fullName" placeholder="e.g. Dr. Arun Kumar">
+      <mat-error>Full name is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email Address *</mat-label>
+      <input matInput formControlName="email" type="email" placeholder="e.g. arun@org.com">
+      <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('email')">Enter a valid email</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Department *</mat-label>
+      <input matInput formControlName="department" placeholder="e.g. Engineering">
+      <mat-error>Department is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Designation</mat-label>
+      <input matInput formControlName="designation" placeholder="e.g. Senior Architect">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Years of Experience *</mat-label>
+      <input matInput formControlName="yearsOfExperience" type="number" min="0" placeholder="e.g. 8">
+      <mat-error>Experience is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Microsoft Teams ID / Email *</mat-label>
+      <input matInput formControlName="teamsId" placeholder="e.g. arun@teams.com">
+      <mat-hint>Used for automated First Ping notification</mat-hint>
+      <mat-error>Teams ID is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Phone Number</mat-label>
+      <input matInput formControlName="phone" placeholder="e.g. 98765 43210">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Availability Status</mat-label>
+      <mat-select formControlName="availabilityStatus">
+        <mat-option value="AVAILABLE">Available</mat-option>
+        <mat-option value="ON_HOLD">On Hold</mat-option>
+        <mat-option value="INACTIVE">Inactive</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Specialties -->
+    <div class="full-span">
+      <mat-label style="font-size:13px;font-weight:600;color:#5C728C">Specialties * (add chips)</mat-label>
+      <mat-form-field appearance="outline" style="width:100%;margin-top:4px">
+        <mat-chip-grid #chipGrid>
+          <mat-chip-row *ngFor="let s of specialties" [removable]="true" (removed)="removeSpecialty(s)">
+            {{ s }} <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip-row>
+          <input placeholder="Type and press Enter..." [matChipInputFor]="chipGrid"
+                 [matChipInputSeparatorKeyCodes]="separatorKeys"
+                 (matChipInputTokenEnd)="addSpecialty($event)">
+        </mat-chip-grid>
+      </mat-form-field>
+      <div style="margin-bottom:12px">
+        <span style="font-size:12px;color:#9BA8BB;margin-right:8px">Quick add:</span>
+        <button mat-stroked-button *ngFor="let p of specialtyPresets" style="margin:2px;font-size:11px;min-width:0;padding:0 8px;height:26px"
+                (click)="addPreset(p)" [disabled]="specialties.includes(p)">{{ p }}</button>
+      </div>
+    </div>
+
+    <!-- Bio -->
+    <mat-form-field appearance="outline" class="full-span">
+      <mat-label>Bio / Notes</mat-label>
+      <textarea matInput formControlName="bio" rows="3" placeholder="Brief description of expertise and availability preferences..."></textarea>
+    </mat-form-field>
+
+  </form>
+</div>
+
+<div class="dialog-footer">
+  <button mat-button (click)="dialogRef.close()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="submit()" [disabled]="loading">
+    <mat-spinner diameter="18" *ngIf="loading" style="display:inline-block;margin-right:6px"></mat-spinner>
+    {{ isEdit ? 'Update SME' : 'Save SME Profile' }}
+  </button>
+</div>

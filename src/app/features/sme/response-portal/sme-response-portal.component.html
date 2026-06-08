@@ -1,0 +1,118 @@
+<!-- src/app/features/sme/response-portal/sme-response-portal.component.html -->
+<div class="portal-bg">
+  <div class="portal-card mat-elevation-z8">
+
+    <!-- Brand header -->
+    <div class="portal-header">
+      <div class="brand-row">
+        <div class="brand-icon">SME</div>
+        <span class="brand-name">SME Manager Response Portal</span>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="center-pad">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading request details...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!loading && errorMsg" class="error-block">
+      <mat-icon>error_outline</mat-icon>
+      <h3>Link Unavailable</h3>
+      <p>{{ errorMsg }}</p>
+    </div>
+
+    <!-- Success / Responded -->
+    <div *ngIf="responded" class="success-block">
+      <mat-icon [style.color]="responseResult === 'ACCEPT' ? '#1A8240' : '#BE780E'">
+        {{ responseResult === 'ACCEPT' ? 'check_circle' : 'info' }}
+      </mat-icon>
+      <h3>{{ responseResult === 'ACCEPT' ? 'Confirmed! Thank you.' : 'Response Recorded' }}</h3>
+      <p *ngIf="responseResult === 'ACCEPT'">Your availability has been confirmed. The coordinator will reach out with the Teams meeting link.</p>
+      <p *ngIf="responseResult === 'DECLINE'">Your decline has been noted. Thank you for letting us know.</p>
+    </div>
+
+    <!-- Request details -->
+    <ng-container *ngIf="!loading && !errorMsg && !responded && request">
+
+      <!-- SME Profile strip -->
+      <div class="profile-strip">
+        <div class="sme-avatar">{{ request.smeName?.[0] ?? '?' }}</div>
+        <div>
+          <div class="sme-name">{{ request.smeName }}</div>
+          <app-specialty-chips [specialties]="request.smeSpecialties ?? []"></app-specialty-chips>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Request summary -->
+      <div class="request-summary">
+        <h3>Request Summary</h3>
+        <div class="summary-grid">
+          <div class="s-item" *ngFor="let item of [
+            {label:'Cohort ID',      value: request.cohortId},
+            {label:'Evaluation Type',value: request.evaluationType},
+            {label:'Date Range',     value: (request.preferredDateFrom | date:'mediumDate') + ' – ' + (request.preferredDateTo | date:'mediumDate')},
+            {label:'Slot Duration',  value: request.slotDuration},
+            {label:'Mode',           value: request.mode},
+            {label:'Participants',   value: request.participantCount + ' trainees'}
+          ]">
+            <div class="s-label">{{ item.label }}</div>
+            <div class="s-value">{{ item.value }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Initial action buttons -->
+      <div *ngIf="!selectedDecision" class="action-area">
+        <h3>Your Response</h3>
+        <div class="big-btns">
+          <button mat-raised-button class="accept-btn" (click)="accept()">
+            <mat-icon>check</mat-icon> Accept Invitation
+          </button>
+          <button mat-stroked-button color="warn" class="decline-btn" (click)="decline()">
+            <mat-icon>close</mat-icon> Decline
+          </button>
+        </div>
+      </div>
+
+      <!-- Accept form -->
+      <div *ngIf="selectedDecision === 'ACCEPT'" class="confirm-area">
+        <button mat-button (click)="back()"><mat-icon>arrow_back</mat-icon> Back</button>
+        <h3>Confirm Your Availability</h3>
+        <mat-form-field appearance="outline" style="width:100%">
+          <mat-label>Preferred Date *</mat-label>
+          <input matInput [formControl]="preferredDate" type="date"
+                 [min]="request.preferredDateFrom" [max]="request.preferredDateTo">
+          <mat-hint>Select a date between {{ request.preferredDateFrom | date:'mediumDate' }} and {{ request.preferredDateTo | date:'mediumDate' }}</mat-hint>
+        </mat-form-field>
+        <button mat-raised-button style="background:#1A8240;color:#fff;width:100%;height:48px;font-size:15px;margin-top:16px"
+                (click)="submit()" [disabled]="submitting">
+          <mat-spinner diameter="20" *ngIf="submitting" style="display:inline-block;margin-right:8px"></mat-spinner>
+          <mat-icon *ngIf="!submitting">check_circle</mat-icon>
+          ACCEPT — Confirm Availability
+        </button>
+      </div>
+
+      <!-- Decline form -->
+      <div *ngIf="selectedDecision === 'DECLINE'" class="confirm-area">
+        <button mat-button (click)="back()"><mat-icon>arrow_back</mat-icon> Back</button>
+        <h3>Decline Invitation</h3>
+        <mat-form-field appearance="outline" style="width:100%">
+          <mat-label>Reason for declining (optional)</mat-label>
+          <textarea matInput [formControl]="declineReason" rows="3" placeholder="e.g. Prior commitment, not available on those dates..."></textarea>
+        </mat-form-field>
+        <button mat-stroked-button color="warn" style="width:100%;height:48px;font-size:15px"
+                (click)="submit()" [disabled]="submitting">
+          <mat-spinner diameter="20" *ngIf="submitting" style="display:inline-block;margin-right:8px"></mat-spinner>
+          Decline Invitation
+        </button>
+      </div>
+
+    </ng-container>
+
+    <div class="portal-footer">Powered by SME Manager · Secure Response Portal</div>
+  </div>
+</div>

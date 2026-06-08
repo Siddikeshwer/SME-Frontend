@@ -1,0 +1,89 @@
+<!-- src/app/features/admin/approval/approval-list/approval-list.component.html -->
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <h2>Approval Workflow</h2>
+      <p>Review POC cohort requests, resolve conflicts, and trigger Teams notifications</p>
+    </div>
+  </div>
+
+  <mat-tab-group (selectedTabChange)="switchTab($event.tab.textLabel.toLowerCase())">
+    <mat-tab label="Pending">
+      <div class="tab-content">
+        <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+        <div *ngIf="!loading && !requests.length" class="empty-state">
+          <mat-icon>done_all</mat-icon>
+          <p>No pending requests — all caught up!</p>
+        </div>
+        <div class="request-grid" *ngIf="!loading && requests.length">
+          <mat-card class="request-card" *ngFor="let r of requests" (click)="viewDetail(r.id)">
+            <div class="card-header">
+              <div>
+                <div class="cohort-id">{{ r.cohortId }}</div>
+                <div class="eval-type">{{ r.evaluationType }}</div>
+              </div>
+              <app-status-badge [status]="r.status"></app-status-badge>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="card-body">
+              <div class="meta-row"><mat-icon>person</mat-icon> {{ r.pocName }}</div>
+              <div class="meta-row"><mat-icon>people</mat-icon> {{ r.smesRequired }} SMEs required</div>
+              <div class="meta-row"><mat-icon>event</mat-icon> {{ r.preferredDateFrom | date:'mediumDate' }} – {{ r.preferredDateTo | date:'mediumDate' }}</div>
+              <div class="meta-row"><mat-icon>schedule</mat-icon> {{ r.createdAt | date:'short' }}</div>
+              <div class="specialties">
+                <app-specialty-chips [specialties]="r.requiredSpecialties"></app-specialty-chips>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button mat-raised-button color="primary" (click)="viewDetail(r.id); $event.stopPropagation()">
+                <mat-icon>fact_check</mat-icon> Review & Decide
+              </button>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="All Requests">
+      <div class="tab-content">
+        <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+        <mat-table [dataSource]="requests" class="requests-table" *ngIf="!loading && requests.length">
+          <ng-container matColumnDef="cohortId">
+            <th mat-header-cell *matHeaderCellDef>Cohort ID</th>
+            <td mat-cell *matCellDef="let r"><strong>{{ r.cohortId }}</strong></td>
+          </ng-container>
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let r">{{ r.evaluationType }}</td>
+          </ng-container>
+          <ng-container matColumnDef="poc">
+            <th mat-header-cell *matHeaderCellDef>POC</th>
+            <td mat-cell *matCellDef="let r">{{ r.pocName }}</td>
+          </ng-container>
+          <ng-container matColumnDef="smes">
+            <th mat-header-cell *matHeaderCellDef>SMEs</th>
+            <td mat-cell *matCellDef="let r">{{ r.confirmedCount }}/{{ r.smesRequired }}</td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let r"><app-status-badge [status]="r.status"></app-status-badge></td>
+          </ng-container>
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Submitted</th>
+            <td mat-cell *matCellDef="let r">{{ r.createdAt | date:'short' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let r">
+              <button mat-icon-button color="primary" (click)="viewDetail(r.id)" matTooltip="Review">
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['cohortId','type','poc','smes','status','date','actions']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['cohortId','type','poc','smes','status','date','actions']" class="table-row" (click)="viewDetail(row.id)"></tr>
+        </mat-table>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

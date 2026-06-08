@@ -1,0 +1,48 @@
+// src/app/features/poc/cohorts/create-cohort/create-cohort.component.scss
+.create-wrapper { max-width: 1300px; }
+.page-header { margin-bottom: 20px;
+  h2{margin:4px 0;font-size:22px;font-weight:700;color:#0E1630;} p{margin:0;color:#5C728C;font-size:14px;}
+}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  @media(max-width:900px){grid-template-columns:1fr;}
+}
+.form-card, .sme-card {
+  mat-card-header { display:flex; align-items:center; gap:10px; margin-bottom:8px;
+    mat-card-title{font-size:16px;font-weight:700;}
+  }
+}
+.step-badge {
+  width:28px;height:28px;border-radius:50%;background:#2A70B2;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;
+  &.teal{background:#12987A;}
+}
+.form-grid { display:grid;grid-template-columns:1fr 1fr;gap:0 16px; }
+.full-span { grid-column:1/-1; }
+.spec-label { font-size:12px;font-weight:600;color:#5C728C;margin-bottom:2px; }
+.preset-row { display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:12px;
+  .preset-hint{font-size:12px;color:#9BA8BB;}
+  .preset-btn{font-size:11px;min-width:0;padding:0 8px;height:24px;}
+}
+.sme-hint { font-size:12px;color:#5C728C;margin:0 0 0 8px;
+  &.muted{color:#9BA8BB;}
+}
+.selection-count { display:flex;align-items:center;gap:6px;padding:8px 0;color:#1A8240;font-size:13px;font-weight:600;
+  mat-icon{font-size:18px;width:18px;height:18px;}
+}
+.sme-list { display:flex;flex-direction:column;gap:10px;max-height:500px;overflow-y:auto;padding-right:4px; }
+.sme-item {
+  display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;
+  border:1.5px solid #DAE4F2;cursor:pointer;transition:all .15s;
+  &:hover{background:#F5F8FF;border-color:#2A70B2;}
+  &.selected{background:#EAF2FE;border-color:#2A70B2;}
+  .sme-avatar{width:36px;height:36px;border-radius:50%;background:#2A70B2;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+  .sme-info{flex:1;
+    .sme-name{font-size:13px;font-weight:600;color:#0E1630;}
+    .sme-meta{font-size:11px;color:#5C728C;margin:2px 0;}
+    .sme-dept{font-size:11px;color:#9BA8BB;}
+  }
+}
+.empty-state{text-align:center;padding:40px;
+  mat-icon{font-size:48px;width:48px;height:48px;color:#C8D4E4;} p{color:#9BA8BB;}
+}

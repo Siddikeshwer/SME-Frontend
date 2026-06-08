@@ -1,0 +1,67 @@
+<!-- src/app/features/poc/dashboard/poc-dashboard.component.html -->
+<div class="poc-dashboard">
+  <div class="page-header">
+    <div><h2>POC Dashboard</h2><p>Your cohorts, approval statuses, and SME confirmations</p></div>
+    <button mat-raised-button color="primary" (click)="newRequest()">
+      <mat-icon>add</mat-icon> New Cohort Request
+    </button>
+  </div>
+
+  <div class="kpi-row" *ngIf="stats">
+    <mat-card class="kpi-card" *ngFor="let k of [
+      {label:'Active Cohorts',    value: stats.activeCohorts,    color:'#12987A'},
+      {label:'SMEs Confirmed',    value: stats.smeConfirmed,     color:'#1A8240'},
+      {label:'Awaiting Approval', value: stats.awaitingApproval, color:'#BE780E'},
+      {label:'Declined',          value: stats.declined,         color:'#C22626'}
+    ]">
+      <!-- <div class="kpi-stripe" [style.background]="k.color"></div> -->
+      <div class="kpi-body">
+        <div class="kpi-label">{{ k.label }}</div>
+        <div class="kpi-value" [style.color]="k.color">{{ k.value }}</div>
+      </div>
+    </mat-card>
+  </div>
+
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <div class="cohort-section" *ngIf="!loading">
+    <h3>My Cohorts</h3>
+    <div *ngIf="!cohorts.length" class="empty-state">
+      <mat-icon>folder_open</mat-icon>
+      <p>No cohorts yet. <a (click)="newRequest()" style="cursor:pointer;color:#2A70B2">Create your first request →</a></p>
+    </div>
+    <div class="cohort-grid">
+      <mat-card class="cohort-card" *ngFor="let c of cohorts" (click)="viewTracker(c.id)">
+        <div class="cohort-header">
+          <div class="cid">{{ c.cohortId }}</div>
+          <app-status-badge [status]="c.status"></app-status-badge>
+        </div>
+        <div class="ctype">{{ c.evaluationType }}</div>
+        <div class="cprogress">
+          <div class="prog-bar-bg">
+            <div class="prog-bar-fill" [style.width.%]="(c.confirmedCount / c.smesRequired) * 100"
+                 [style.background]="getStatusColor(c.status)"></div>
+          </div>
+          <div class="prog-label">{{ c.confirmedCount }}/{{ c.smesRequired }} SMEs confirmed</div>
+        </div>
+        <div class="cmeta">
+          <mat-icon>event</mat-icon>
+          {{ c.preferredDateFrom | date:'mediumDate' }}
+        </div>
+        <div class="cspecialties">
+          <app-specialty-chips [specialties]="c.requiredSpecialties" [maxShow]="3"></app-specialty-chips>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+
+  <mat-card class="activity-card" *ngIf="stats?.recentActivity?.length">
+    <mat-card-header><mat-card-title><mat-icon>notifications</mat-icon> Recent Notifications</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="activity-item" *ngFor="let a of stats!.recentActivity">
+        <div class="activity-dot" [style.background]="'#2A70B2'"><mat-icon>info</mat-icon></div>
+        <div><div class="atitle">{{ a.description }}</div><div class="ameta">{{ a.createdAt | date:'short' }}</div></div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

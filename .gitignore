@@ -1,0 +1,28 @@
+# Dependency directories (Will be recreated via 'npm install')
+node_modules/
+
+# Production build output directory
+dist/
+.angular/
+
+# Log files and npm crash details
+/npm-debug.log
+/yarn-error.log
+/yarn-debug.log*
+.pnpm-debug.log*
+
+# IDE files and code workspace profiles
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS-specific temporary items
+.DS_Store
+Thumbs.db
+
+# System-level test coverage reports
+/coverage/

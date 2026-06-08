@@ -1,0 +1,51 @@
+<!-- src/app/features/auth/login/login.component.html -->
+<div class="login-bg">
+  <div class="login-card mat-elevation-z8">
+
+    <div class="login-header">
+      <div class="brand-icon">SME</div>
+      <h1>SME Manager</h1>
+      <p>Subject Matter Expert Coordination Platform</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email Address</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="Enter your email" autocomplete="email">
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">Enter a valid email</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" autocomplete="current-password">
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit" class="login-btn" [disabled]="loading">
+        <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+        <mat-icon *ngIf="!loading">login</mat-icon>
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <mat-divider class="divider"></mat-divider>
+
+    <div class="demo-section">
+      <p class="demo-label">Quick Demo Access</p>
+      <div class="demo-buttons">
+        <button mat-stroked-button *ngFor="let acc of demoAccounts"
+                [style.borderColor]="acc.color" [style.color]="acc.color"
+                (click)="fillDemo(acc)" class="demo-btn">
+          {{ acc.label }}
+        </button>
+      </div>
+      <p class="demo-hint">Click a role to fill credentials, then Sign In</p>
+    </div>
+
+  </div>
+</div>

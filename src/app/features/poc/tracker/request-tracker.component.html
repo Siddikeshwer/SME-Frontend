@@ -1,0 +1,130 @@
+<div class="tracker-wrapper">
+  <div class="back-bar">
+    <button mat-button (click)="goBack()"><mat-icon>arrow_back</mat-icon> My Cohorts</button>
+  </div>
+
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <ng-container *ngIf="!loading && request">
+
+    <!-- Header -->
+    <div class="tracker-header">
+      <div>
+        <div class="cohort-id">{{ request.cohortId }}</div>
+        <div class="eval-type">{{ request.evaluationType }}</div>
+        <div class="meta">
+          {{ request.smesRequired }} SMEs required ·
+          {{ request.preferredDateFrom | date:'mediumDate' }} – {{ request.preferredDateTo | date:'mediumDate' }}
+        </div>
+      </div>
+      <div class="header-right">
+        <app-status-badge [status]="request.status" [large]="true"></app-status-badge>
+        <div class="confirmed-count">{{ request.confirmedCount }}/{{ request.smesRequired }} confirmed</div>
+      </div>
+    </div>
+
+    <!-- Pipeline Bar -->
+    <mat-card class="pipeline-card">
+      <div class="pipeline">
+        <div class="stage" *ngFor="let stage of pipelineStages; let i = index"
+             [class.done]="i <= getActiveStageIndex(request.status)"
+             [class.active]="i === getActiveStageIndex(request.status)">
+          <div class="stage-circle"><mat-icon>{{ stage.icon }}</mat-icon></div>
+          <div class="stage-label">{{ stage.label }}</div>
+          <div class="connector" *ngIf="i < pipelineStages.length - 1"></div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Admin note if present -->
+    <div class="admin-note-card" *ngIf="request.adminNote">
+      <mat-icon>comment</mat-icon>
+      <div>
+        <div class="note-label">Admin Note</div>
+        <div class="note-text">{{ request.adminNote }}</div>
+      </div>
+    </div>
+
+    <!-- SME Response Grid -->
+    <mat-card class="responses-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>people</mat-icon> SME Response Status
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <div *ngIf="!request.smeResponses?.length" class="empty-state">
+          <mat-icon>hourglass_empty</mat-icon>
+          <p>Awaiting admin approval before pings are sent to SMEs</p>
+        </div>
+
+        <table mat-table [dataSource]="request.smeResponses"
+               *ngIf="request.smeResponses?.length" style="width:100%">
+
+          <ng-container matColumnDef="num">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let r; let i = index">{{ i + 1 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>SME</th>
+            <td mat-cell *matCellDef="let r">
+              <div class="sme-cell">
+                <div class="sme-av" [style.background]="getResponseStatusColor(r.responseStatus)">
+                  {{ r.smeName[0] }}
+                </div>
+                <div>
+                  <div class="sme-name">{{ r.smeName }}</div>
+                  <app-specialty-chips [specialties]="r.smeSpecialties" [maxShow]="2"></app-specialty-chips>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="pingSent">
+            <th mat-header-cell *matHeaderCellDef>Teams Ping Sent</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="muted">{{ r.pingSentAt ? (r.pingSentAt | date:'short') : '—' }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="response">
+            <th mat-header-cell *matHeaderCellDef>Response</th>
+            <td mat-cell *matCellDef="let r">
+              <div class="response-cell" [style.color]="getResponseStatusColor(r.responseStatus)">
+                <mat-icon>{{ getResponseIcon(r.responseStatus) }}</mat-icon>
+                <span>{{ r.responseStatus | titlecase }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="preferredDate">
+            <th mat-header-cell *matHeaderCellDef>Date Preference</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="muted">{{ r.preferredDate ? (r.preferredDate | date:'mediumDate') : '—' }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let r">
+              <!-- FIX 3: Removed Re-ping button. Re-ping is Admin responsibility only. -->
+              <app-status-badge [status]="r.responseStatus" type="response"></app-status-badge>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="resp-row"></tr>
+        </table>
+
+        <!-- Info note explaining Re-ping is admin action -->
+        <div class="repingNote" *ngIf="request.smeResponses?.length">
+          <mat-icon>info</mat-icon>
+          <span>If a follow-up is needed for non-responding SMEs, please contact your Admin to re-send a ping.</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </ng-container>
+</div>

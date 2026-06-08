@@ -1,0 +1,104 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="ph-title">
+      <mat-icon class="ai-icon">psychology</mat-icon>
+      <div>
+        <h2>AI Decision Agent</h2>
+        <p>Automated analysis of all pending approval requests — confidence scores, pool health, and recommended actions</p>
+      </div>
+    </div>
+    <span class="ai-tag">⭐ Rule-based AI · No API Key · Live SME Data</span>
+  </div>
+
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <div class="empty-state" *ngIf="!loading && !items.length">
+    <mat-icon>done_all</mat-icon>
+    <h3>No Pending Requests</h3>
+    <p>All cohort requests have been processed. The agent will analyse new requests as they arrive.</p>
+  </div>
+
+  <div class="agent-grid" *ngIf="!loading && items.length">
+    <div class="agent-card" *ngFor="let item of items" (click)="viewDetail(item.request.id)">
+
+      <!-- Card header -->
+      <div class="ac-header">
+        <div class="ac-id">{{ item.request.cohortId }}</div>
+        <div class="ac-type">{{ item.request.evaluationType }}</div>
+        <div class="ac-meta">
+          <mat-icon>person</mat-icon> {{ item.request.pocName }} ·
+          <mat-icon>people</mat-icon> {{ item.request.smesRequired }} SMEs ·
+          <mat-icon>event</mat-icon> {{ item.request.preferredDateFrom | date:'mediumDate' }}
+        </div>
+        <div class="ac-specs">
+          <span class="spec-chip" *ngFor="let s of item.request.requiredSpecialties">{{ s }}</span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- AI Analysis result -->
+      <div class="ac-loading" *ngIf="item.loading">
+        <mat-spinner diameter="20"></mat-spinner>
+        <span>Analysing...</span>
+      </div>
+
+      <div class="ac-analysis" *ngIf="!item.loading && item.analysis">
+
+        <!-- Verdict row -->
+        <div class="verdict-row">
+          <mat-icon [style.color]="recColor(item.analysis.recommendation)" class="verdict-icon">
+            {{ recIcon(item.analysis.recommendation) }}
+          </mat-icon>
+          <div class="verdict-text">
+            <div class="vt-label" [style.color]="recColor(item.analysis.recommendation)">
+              {{ recLabel(item.analysis.recommendation) }}
+            </div>
+            <div class="vt-headline">{{ item.analysis.headline }}</div>
+          </div>
+        </div>
+
+        <!-- Score bar -->
+        <div class="score-row">
+          <span class="score-label">Confidence</span>
+          <div class="score-track">
+            <div class="score-fill"
+                 [style.width.%]="item.analysis.confidenceScore"
+                 [style.background]="scoreColor(item.analysis.confidenceScore)">
+            </div>
+          </div>
+          <span class="score-val" [style.color]="scoreColor(item.analysis.confidenceScore)">
+            {{ item.analysis.confidenceScore }}/100
+          </span>
+        </div>
+
+        <!-- Key finding -->
+        <div class="key-warning" *ngIf="item.analysis.warnings?.length">
+          <mat-icon>warning</mat-icon>
+          {{ item.analysis.warnings[0] }}
+        </div>
+        <div class="key-positive" *ngIf="!item.analysis.warnings?.length && item.analysis.positives?.length">
+          <mat-icon>check_circle</mat-icon>
+          {{ item.analysis.positives[0] }}
+        </div>
+
+        <!-- Pool mini stats -->
+        <div class="mini-pool" *ngIf="item.analysis.smePool">
+          <span class="mp-stat green">{{ item.analysis.smePool.matchingAndAvailable }} available</span>
+          <span class="mp-stat amber">{{ item.analysis.smePool.matchingSpecialty - item.analysis.smePool.matchingAndAvailable }} busy</span>
+          <span class="mp-urgency" [style.background]="recColor(item.analysis.recommendation) + '22'"
+                [style.color]="recColor(item.analysis.recommendation)">
+            {{ item.analysis.urgency }} urgency
+          </span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="ac-footer">
+        <button mat-raised-button color="primary" (click)="viewDetail(item.request.id); $event.stopPropagation()">
+          <mat-icon>fact_check</mat-icon> Review & Decide
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
