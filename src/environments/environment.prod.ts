@@ -1,5 +1,4 @@
-// src/environments/environment.prod.ts
 export const environment = {
   production: true,
-  apiUrl: '/api'
+  apiUrl: 'https://sme-backend-qbbl.onrender.com/api'
 };
